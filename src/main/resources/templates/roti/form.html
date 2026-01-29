@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::content})}">
+
+<div th:fragment="content">
+
+    <div class="max-w-2xl mx-auto">
+        
+        <!-- Header / Title -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate" 
+                    th:text="${roti.id == null ? 'Tambah Roti Baru' : 'Edit Data Roti'}">
+                    Form Roti
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Silakan isi informasi detail roti di bawah ini.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+            <form action="/roti/simpan" method="post" class="px-4 py-6 sm:p-8">
+                
+                <!-- Hidden ID Input -->
+                <input type="hidden" th:field="${roti.id}"/>
+
+                <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    
+                    <!-- Input Nama Roti -->
+                    <div class="sm:col-span-4">
+                        <label for="namaRoti" class="block text-sm font-medium leading-6 text-gray-900">Nama Roti</label>
+                        <div class="mt-2">
+                            <input type="text" th:field="${roti.namaRoti}" id="namaRoti" required
+                                   class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-sm"
+                                   placeholder="Contoh: Roti Tawar Kupas">
+                        </div>
+                    </div>
+
+                    <!-- Input Kategori -->
+                    <div class="sm:col-span-3">
+                        <label for="kategori" class="block text-sm font-medium leading-6 text-gray-900">Kategori</label>
+                        <div class="mt-2">
+                            <input type="text" th:field="${roti.kategori}" id="kategori" required
+                                   class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-sm"
+                                   placeholder="Contoh: Tawar / Manis">
+                        </div>
+                    </div>
+
+                    <!-- Input Harga -->
+                    <div class="sm:col-span-3">
+                        <label for="harga" class="block text-sm font-medium leading-6 text-gray-900">Harga (Rp)</label>
+                        <div class="mt-2 relative rounded-md shadow-sm">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <span class="text-gray-500 sm:text-sm">Rp</span>
+                            </div>
+                            <input type="number" step="0.01" th:field="${roti.harga}" id="harga" required
+                                   class="block w-full rounded-md border-0 py-1.5 pl-10 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Input Stok -->
+                    <div class="sm:col-span-2">
+                        <label for="stok" class="block text-sm font-medium leading-6 text-gray-900">Stok Awal</label>
+                        <div class="mt-2">
+                            <input type="number" th:field="${roti.stok}" id="stok" required
+                                   class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-sm">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 flex items-center justify-end gap-x-4 border-t border-gray-900/10 pt-6">
+                    <a href="/roti" class="rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 ring-1 ring-inset ring-gray-300">
+                        Batal
+                    </a>
+                    <button type="submit" 
+                            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Simpan Data
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::content})}">
+
+<div th:fragment="content">
+
+    <!-- Header Page & Button Container -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Manajemen Data Roti
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Daftar semua produk roti yang terdaftar dalam sistem.
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <a href="/roti/tambah" 
+               class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Roti
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="flex flex-col shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                <div class="overflow-hidden md:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Nama Roti</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Kategori</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Harga</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Stok</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                    <span class="sr-only">Aksi</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <!-- Loop Data -->
+                            <tr th:each="r : ${daftarRoti}" class="hover:bg-gray-50 transition-colors">
+                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6" th:text="${r.namaRoti}">
+                                    Roti Tawar
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800" th:text="${r.kategori}">
+                                        Tawar
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    Rp <span th:text="${r.harga}">12000</span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500" th:text="${r.stok}">
+                                    50
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    <!-- Badge Status Dinamis Sederhana -->
+                                    <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5"
+                                          th:classappend="${r.status == 'TERSEDIA'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                          th:text="${r.status}">
+                                        TERSEDIA
+                                    </span>
+                                </td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-2">
+                                    <a th:href="@{/roti/edit/{id}(id=${r.id})}" class="text-indigo-600 hover:text-indigo-900 font-semibold transition-colors">Edit</a>
+                                    <span class="text-gray-300">|</span>
+                                    <a th:href="@{/roti/hapus/{id}(id=${r.id})}" 
+                                       onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')" 
+                                       class="text-red-600 hover:text-red-900 font-semibold transition-colors">Hapus</a>
+                                </td>
+                            </tr>
+                            
+                            <!-- State Kosong (Optional: Muncul jika daftarRoti kosong) -->
+                            <tr th:if="${#lists.isEmpty(daftarRoti)}">
+                                <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="h-10 w-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                        </svg>
+                                        <p>Belum ada data roti.</p>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</html>

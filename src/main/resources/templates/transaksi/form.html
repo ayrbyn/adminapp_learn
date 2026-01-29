@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout/base :: layout(~{::content})}">
+
+<div th:fragment="content">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Header -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    Transaksi Baru
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Masukkan detail pembelian pelanggan (bisa lebih dari satu jenis roti).
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+            <form th:action="@{/transaksi/simpan}" th:object="${transaksi}" method="post" class="px-4 py-6 sm:p-8">
+                
+                <!-- Metode Pembayaran -->
+                <div class="mb-8 border-b border-gray-100 pb-6">
+                    <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Metode Pembayaran</label>
+                    <div class="max-w-xs">
+                        <select th:field="*{metodePembayaran}" class="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-sm">
+                            <option value="Tunai">Tunai</option>
+                            <option value="QRIS">QRIS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Container Item Belanja -->
+                <div id="items-container">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-4">Daftar Belanja</h3>
+                    
+                    <!-- 
+                        BARIS ITEM PERTAMA (Template Default)
+                        Kita beri class 'item-row' agar mudah diakses via JS
+                    -->
+                    <div class="item-row grid grid-cols-12 gap-4 mb-4 items-start pb-4 border-b border-gray-50">
+                        
+                        <!-- Pilih Roti -->
+                        <div class="col-span-6 sm:col-span-5">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Produk</label>
+                            <select name="detailTransaksiList[0].roti.id"
+                                    onchange="updateRowTotal(this)"
+                                    class="roti-select block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                <option value="" data-harga="0">-- Pilih Roti --</option>
+                                <option th:each="r : ${daftarRoti}" 
+                                        th:value="${r.id}" 
+                                        th:text="${r.namaRoti + ' (Stok: ' + r.stok + ')'}"
+                                        th:data-harga="${r.harga}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Input Jumlah -->
+                        <div class="col-span-2 sm:col-span-2">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Qty</label>
+                            <input type="number" 
+                                   name="detailTransaksiList[0].jumlah" 
+                                   value="1" 
+                                   min="1" 
+                                   oninput="updateRowTotal(this)"
+                                   class="jumlah-input block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 text-center">
+                        </div>
+
+                        <!-- Subtotal Row -->
+                        <div class="col-span-3 sm:col-span-4 relative">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Subtotal</label>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 text-sm mr-2">Rp</span>
+                                <input type="text" 
+                                       readonly
+                                       class="subtotal-display block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 sm:text-sm sm:leading-6 font-semibold cursor-not-allowed text-right"
+                                       value="0">
+                                
+                                <!-- Tombol Hapus (Hidden untuk baris pertama agar tidak kosong total) -->
+                                <button type="button" onclick="removeRow(this)" class="btn-remove ml-2 text-red-500 hover:text-red-700 p-1 hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Tambah Item -->
+                <div class="mt-4">
+                    <button type="button" onclick="addNewRow()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        Tambah Barang Lain
+                    </button>
+                </div>
+
+                <!-- Grand Total Display -->
+                <div class="mt-8 border-t border-gray-200 pt-6 flex justify-end items-center">
+                    <div class="text-right">
+                        <span class="block text-sm font-medium text-gray-500">Total Transaksi</span>
+                        <span class="block text-3xl font-bold text-gray-900" id="grand-total-display">Rp 0</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 flex items-center justify-end gap-x-4">
+                    <a href="/transaksi/riwayat" class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">Batal</a>
+                    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Simpan Transaksi
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Format angka ke format Rupiah
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+        }
+
+        // Fungsi Hitung per Baris
+        function updateRowTotal(element) {
+            const row = element.closest('.item-row');
+            const select = row.querySelector('.roti-select');
+            const inputJumlah = row.querySelector('.jumlah-input');
+            const inputSubtotal = row.querySelector('.subtotal-display');
+
+            // Ambil data harga
+            const selectedOption = select.options[select.selectedIndex];
+            const hargaSatuan = selectedOption ? parseFloat(selectedOption.dataset.harga) : 0;
+            const jumlah = parseInt(inputJumlah.value) || 0;
+
+            // Hitung Subtotal Baris
+            const subtotal = hargaSatuan * jumlah;
+            inputSubtotal.value = subtotal; // Simpan nilai asli (number) di value, bisa diformat kalau mau
+
+            updateGrandTotal();
+        }
+
+        // Fungsi Hitung Grand Total (Loop semua baris)
+        function updateGrandTotal() {
+            let grandTotal = 0;
+            document.querySelectorAll('.subtotal-display').forEach(input => {
+                grandTotal += parseFloat(input.value) || 0;
+            });
+            document.getElementById('grand-total-display').innerText = formatRupiah(grandTotal);
+        }
+
+        // Fungsi Tambah Baris Baru
+        function addNewRow() {
+            const container = document.getElementById('items-container');
+            const firstRow = container.querySelector('.item-row');
+            
+            // Clone baris pertama
+            const newRow = firstRow.cloneNode(true);
+            
+            // Reset nilai input di baris baru
+            newRow.querySelector('.roti-select').selectedIndex = 0;
+            newRow.querySelector('.jumlah-input').value = 1;
+            newRow.querySelector('.subtotal-display').value = 0;
+            
+            // Tampilkan tombol hapus di baris baru
+            newRow.querySelector('.btn-remove').classList.remove('hidden');
+
+            container.appendChild(newRow);
+            
+            // Update Index Name agar Spring Boot bisa baca List (wajib berurutan 0, 1, 2...)
+            reindexRows();
+        }
+
+        // Fungsi Hapus Baris
+        function removeRow(button) {
+            const row = button.closest('.item-row');
+            row.remove();
+            reindexRows();
+            updateGrandTotal();
+        }
+
+        // Fungsi Re-Index (Kunci agar Spring Boot tidak error Binding)
+        function reindexRows() {
+            const rows = document.querySelectorAll('.item-row');
+            rows.forEach((row, index) => {
+                // Update name="detailTransaksiList[X].roti.id"
+                row.querySelector('.roti-select').name = `detailTransaksiList[${index}].roti.id`;
+                // Update name="detailTransaksiList[X].jumlah"
+                row.querySelector('.jumlah-input').name = `detailTransaksiList[${index}].jumlah`;
+            });
+        }
+
+        // Init saat load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateGrandTotal();
+        });
+    </script>
+
+</div>
+</html>
